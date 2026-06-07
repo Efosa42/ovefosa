@@ -366,6 +366,100 @@ section {
     padding: 6rem 0
 }
 
+/* ─── AI VIDEOS / IG REELS ─────────────────────────────────── */
+#ai-videos { background: var(--rust) }
+.ai-videos-grid .section-blurb { margin-bottom: 1.2rem }
+.ig-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    align-items: start;
+    margin-top: 1rem;
+}
+.ig-card { cursor: pointer; user-select: none }
+.ig-thumb {
+    width: 100%;
+    aspect-ratio: 9 / 16;
+    background-size: cover;
+    background-position: center;
+    border-radius: 8px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 8px 30px rgba(26,21,16,0.12);
+}
+.play-overlay {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(10,10,10,0.6);
+    color: var(--paper);
+    font-size: 1.6rem;
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid rgba(255,255,255,0.06);
+}
+.ig-caption {
+    margin-top: .6rem;
+    font-family: 'Space Mono', monospace;
+    font-size: .78rem;
+    color: var(--ink);
+}
+
+/* Video overlay */
+.video-overlay {
+    position: fixed;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,0.9);
+    z-index: 99998;
+    padding: 2rem;
+}
+.video-overlay.open { display: flex }
+.video-wrap {
+    max-width: 420px; /* narrow vertical video */
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: .8rem;
+    align-items: stretch;
+}
+.video-wrap video {
+    width: 100%;
+    height: auto;
+    max-height: 92vh;
+    border-radius: 8px;
+    background: black;
+}
+.video-close {
+    align-self: flex-end;
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.08);
+    color: var(--paper);
+    padding: .3rem .6rem;
+    cursor: pointer;
+}
+.video-caption {
+    color: var(--paper);
+    font-family: 'Space Mono', monospace;
+    font-size: .78rem;
+    opacity: .95;
+}
+
+@media (max-width: 900px) {
+    .ig-grid { grid-template-columns: repeat(2, 1fr) }
+    .video-wrap { max-width: 84vw }
+}
+@media (max-width: 480px) {
+    .ig-grid { grid-template-columns: repeat(1, 1fr) }
+}
+
 /* .container is left to Bootstrap's responsive version;
    only padding is added on large screens */
 .container,

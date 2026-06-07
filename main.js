@@ -56,7 +56,42 @@ const galleryData = {
       'images/lanas/9.webp',
       'images/lanas/10.webp',
     ]
+  },
+  rogue:     {
+     label: 'ROGUE & RYE',
+     images: [
+      'images/rogue&rye/1.webp',
+      'images/rogue&rye/3.webp',
+      'images/rogue&rye/4.webp',
+      'images/rogue&rye/5.webp',
+      'images/rogue&rye/2.webp',
+      'images/rogue&rye/6.webp',
+      'images/rogue&rye/7.webp',
+      'images/rogue&rye/8.webp',
+      'images/rogue&rye/9.webp',
+      'images/rogue&rye/10.webp',
+      'images/rogue&rye/11.webp',
+      'images/rogue&rye/12.webp',
+      'images/rogue&rye/13.webp',
+      'images/rogue&rye/14.webp',
+      'images/rogue&rye/15.webp',
+      'images/rogue&rye/16.webp',
+    ]
       },
+      grandeur_farm:     { 
+    label: 'GRANDEUR FARMS',
+    images: [
+      'images/grandeur_farms/7.webp',
+      'images/grandeur_farms/5.webp',
+      'images/grandeur_farms/6.webp',
+      'images/grandeur_farms/3.webp',
+      'images/grandeur_farms/1.webp',
+      'images/grandeur_farms/2.webp',
+      'images/grandeur_farms/4.webp',
+      'images/grandeur_farms/9.webp',
+      'images/grandeur_farms/8.webp',
+    ]
+ },
   jojo:     { 
     label: 'JOJOS BURGER',
     images: [
@@ -117,12 +152,12 @@ const galleryData = {
       'images/ace/ace9.webp',
       'images/ace/ace10.webp',
       'images/ace/ace11.webp',
-      'images/ace/ace15.png',
-      'images/ace/ace16.png',
-      'images/ace/ace17.png',
+      'images/ace/ace15.webp',
+      'images/ace/ace16.webp',
+      'images/ace/ace17.webp',
       'images/ace/ace1.webp',
-      'images/ace/ace12.png',
-      'images/ace/ace13.png',
+      'images/ace/ace12.webp',
+      'images/ace/ace13.webp',
       
       
       
@@ -131,9 +166,11 @@ const galleryData = {
   etw: {
     label: 'ETW ORIGINALS',
     images: [
-      'images/etw/et4.png',
-      'images/etw/et2.png',
-      'images/etw/et5.png',
+      'images/etw/et4.webp',
+      'images/etw/et2.webp',
+      'images/etw/et5.webp',
+      'images/etw/et11.webp',
+       'images/etw/et12.webp',
       'images/etw/et6.webp',
       'images/etw/et7.webp',
       'images/etw/et8.webp',
@@ -165,6 +202,33 @@ function closeLightbox() {
   const lb = document.getElementById('lightbox');
   if (lb) lb.style.display = 'none';
   lightboxOpen = false;
+}
+
+// Video overlay
+let videoOpen = false;
+function openVideo(src, caption) {
+  const overlay = document.getElementById('videoOverlay');
+  const video = document.getElementById('overlayVideo');
+  const cap = document.getElementById('overlayCaption');
+  if (!overlay || !video) return;
+  video.src = src;
+  cap.textContent = caption || '';
+  overlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  video.play().catch(() => {});
+  videoOpen = true;
+}
+
+function closeVideo() {
+  const overlay = document.getElementById('videoOverlay');
+  const video = document.getElementById('overlayVideo');
+  if (video) {
+    video.pause();
+    try { video.removeAttribute('src'); video.load(); } catch(e) {}
+  }
+  if (overlay) overlay.classList.remove('open');
+  document.body.style.overflow = '';
+  videoOpen = false;
 }
 
 function openGallery(project, title) {
@@ -237,6 +301,7 @@ function closeGallery() {
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') {
     if (lightboxOpen) closeLightbox();
+    else if (videoOpen) closeVideo();
     else closeGallery();
   }
 });
@@ -245,6 +310,10 @@ document.addEventListener('keydown', e => {
 document.getElementById('galleryOverlay').addEventListener('click', function(e) {
   if (e.target === this) closeGallery();
 });
+
+// Close video overlay when clicking backdrop (handled inline in HTML too)
+const vo = document.getElementById('videoOverlay');
+if (vo) vo.addEventListener('click', function(e) { if (e.target === this) closeVideo(); });
 
 // Ensure thumb images fill their box on large screens but avoid excessive upscaling
 function adjustThumbImages() {
