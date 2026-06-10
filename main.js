@@ -206,15 +206,87 @@ function closeLightbox() {
 
 // Video overlay
 let videoOpen = false;
+// Helper: stop and remove any existing video/iframe/unmute UI
+function cleanupVideoResources() {
+  const overlay = document.getElementById('videoOverlay');
+  const video = document.getElementById('overlayVideo');
+  // pause + remove native video sources
+  if (video) {
+    try {
+      video.pause();
+      video.currentTime = 0;
+    } catch (e) {}
+    try {
+      while (video.firstChild) video.removeChild(video.firstChild);
+      video.removeAttribute('src');
+      video.load && video.load();
+      video.style.display = '';
+    } catch (e) {}
+  }
+  // remove any Drive iframe
+  const iframe = document.getElementById('overlayDriveIframe');
+  if (iframe) try { iframe.remove(); } catch (e) {}
+  // remove unmute button
+  const unmuteBtn = document.getElementById('videoUnmute');
+  if (unmuteBtn) try { unmuteBtn.remove(); } catch (e) {}
+}
 function openVideo(src, caption) {
   const overlay = document.getElementById('videoOverlay');
   const video = document.getElementById('overlayVideo');
   const cap = document.getElementById('overlayCaption');
   if (!overlay || !video) return;
-  video.src = src;
+  // Ensure any previous media is fully stopped and cleaned up
+  cleanupVideoResources();
+  // If the provided src is a Google Drive viewer link, embed the Drive preview in an iframe
+  let driveMatch = null;
+  try { driveMatch = src && src.match(/\/d\/([a-zA-Z0-9_-]+)/); } catch (e) { driveMatch = null; }
+  if (driveMatch) {
+    const id = driveMatch[1];
+    // create iframe preview URL which Drive supports for embedding
+    const previewUrl = `https://drive.google.com/file/d/${id}/preview`;
+    // remove any existing iframe
+    const existing = document.getElementById('overlayDriveIframe');
+    if (existing) existing.remove();
+    // hide native video element
+    try { video.style.display = 'none'; } catch (e) {}
+    const iframe = document.createElement('iframe');
+    iframe.id = 'overlayDriveIframe';
+    iframe.src = previewUrl;
+    iframe.width = '100%';
+    iframe.height = '100%';
+    iframe.style.border = '0';
+    iframe.allow = 'autoplay; encrypted-media';
+    iframe.setAttribute('allowfullscreen', '');
+    // place iframe inside the .video-wrap after the close button (append is fine)
+    const wrap = overlay.querySelector('.video-wrap') || overlay;
+    wrap.appendChild(iframe);
+    cap.textContent = caption || '';
+    overlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    videoOpen = true;
+    return;
+  }
+
+  // Non-Drive source: use native video element
+  // Clear any existing sources and set a single <source> for better cross-browser handling
+  try {
+    // remove any drive iframe left behind
+    const existing = document.getElementById('overlayDriveIframe');
+    if (existing) existing.remove();
+    video.style.display = '';
+    video.pause();
+    while (video.firstChild) video.removeChild(video.firstChild);
+  } catch (e) {}
+  const source = document.createElement('source');
+  source.src = src;
+  source.type = 'video/mp4';
+  video.appendChild(source);
   cap.textContent = caption || '';
   overlay.classList.add('open');
   document.body.style.overflow = 'hidden';
+  // Ensure video is ready then play; start muted for autoplay reliability
+  try { video.muted = true; } catch (e) {}
+  try { video.load(); video.currentTime = 0; } catch (e) {}
   video.play().catch(() => {});
   videoOpen = true;
 }
@@ -226,6 +298,14 @@ function closeVideo() {
     video.pause();
     try { video.removeAttribute('src'); video.load(); } catch(e) {}
   }
+  // remove any Drive iframe if present
+  const iframe = document.getElementById('overlayDriveIframe');
+  if (iframe) {
+    try { iframe.remove(); } catch(e) {}
+    if (video) video.style.display = '';
+  }
+  // also remove unmute button and ensure everything is stopped
+  cleanupVideoResources();
   if (overlay) overlay.classList.remove('open');
   document.body.style.overflow = '';
   videoOpen = false;
